@@ -1,11 +1,10 @@
 use nannou::{
-    glam::Vec2,
-    noise::{BasicMulti, NoiseFn, Perlin, Seedable},
+    noise::{NoiseFn, Perlin},
     prelude::*,
 };
 
-static NOISE_STEP: f32 = 50.;
-static CANVAS_SIZE: [f32; 2] = [400., 400.];
+static NOISE_STEP: f32 = 300.;
+// static CANVAS_SIZE: [f32; 2] = [400., 400.];
 
 // struct Model {
 //     noise: BasicMulti,
@@ -36,22 +35,34 @@ fn main() {
 
 // fn view(app: &App, model: &Model, frame: Frame) {
 fn view(app: &App, frame: Frame) {
-    let draw = app.draw();
+    let light_color = rgb(0.2, 0.2, 0.2);
     let boundary = app.window_rect();
 
-    // advance by 1/500 per frame
-    let current_step = (app.elapsed_frames()) as f32 / NOISE_STEP;
-    let _x = Perlin::new().get([current_step.into(), 0.]);
-    let x = map_range(_x, -1.0, 1.0, boundary.left(), boundary.right());
-
-    let _y = Perlin::new().get([(current_step * 0.4).into(), 0.]);
-    let y = map_range(_y, -1.0, 1.0, boundary.top(), boundary.bottom());
-
+    let draw = app.draw();
     draw.background().color(rgb(1.0, 1.0, 1.0));
-    draw.ellipse()
-        .w_h(10., 10.)
-        .color(rgb(0.2, 0.2, 0.2))
-        .x_y(x, y);
+
+    // let current_step = (app.elapsed_frames()) as f32 / NOISE_STEP;
+    // let _x = Perlin::new().get([current_step.into(), 0.]);
+    // let x = map_range(_x, -1.0, 1.0, boundary.left(), boundary.right());
+
+    // draw.ellipse().w_h(10., 10.).color(light_color).x_y(x, 10.);
+
+    // draw.line()
+    //     .start(Vec2::new(boundary.left(), 0.))
+    //     .end(Vec2::new(boundary.right(), 0.))
+    //     .color(light_color);
+
+    let points = (0..boundary.w() as i32).map(|i| {
+        let x = i as f32 - 25.0; //subtract 25 to center the sine wave
+        let point = pt2(x, x.sin()) * 20.0; //scale sine wave by 20.0
+        point
+    });
+
+    draw.polyline()
+        .x(0 as f32)
+        .weight(1.0)
+        .points(points)
+        .color(light_color);
 
     // render the draw
     draw.to_frame(app, &frame).unwrap();
